@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusFix | Campus Maintenance</title>
+<style>
+:root {
+  --navy: #102d4f;
+  --blue: #2463eb;
+  --bg: #f4f7fb;
+  --text: #172337;
+  --muted: #64748b;
+  --border: #e1e8f0;
+  --green: #15803d;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+header {
+  background: var(--navy);
+  color: white;
+  padding: 20px max(5%, calc((100% - 1200px)/2));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.brand { font-size: 24px; font-weight: 800; }
+.brand span { color: #83b4ff; }
+header p { margin: 5px 0 0; font-size: 13px; color: #d4e3f7; }
+.header-tag {
+  border: 1px solid #6b88a9;
+  padding: 7px 11px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+main { max-width: 1200px; margin: auto; padding: 28px 20px 50px; }
+.intro {
+  display: flex; justify-content: space-between;
+  align-items: center; gap: 20px; margin-bottom: 22px;
+}
+h1 { font-size: 29px; margin: 0 0 8px; }
+h2 { font-size: 19px; margin: 0 0 17px; }
+p { line-height: 1.5; }
+.muted { color: var(--muted); }
+.intro p { margin: 0; color: var(--muted); }
+.primary, .secondary, .danger {
+  border: 0; border-radius: 9px; padding: 11px 15px;
+  font-weight: 650;
+}
+.primary { background: var(--blue); color: white; }
+.primary:hover { background: #174bc0; }
+.secondary { background: #eaf1ff; color: #204db0; }
+.danger { background: #fee2e2; color: #991b1b; }
+.stats {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 14px; margin-bottom: 24px;
+}
+.stat, .panel, .issue-card {
+  background: white; border: 1px solid var(--border);
+  border-radius: 13px;
+}
+.stat { padding: 18px; }
+.stat-label { font-size: 13px; color: var(--muted); }
+.stat-number { font-size: 29px; font-weight: 750; margin-top: 8px; }
+.layout {
+  display: grid; grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 22px; align-items: start;
+}
+.panel { padding: 21px; margin-bottom: 20px; }
+.toolbar {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 17px;
+}
+.toolbar input { flex: 1; min-width: 180px; }
+input, select, textarea {
+  width: 100%; padding: 11px 12px;
+  border: 1px solid #cbd5e1; border-radius: 8px;
+  background: white; color: var(--text);
+}
+textarea { resize: vertical; min-height: 90px; }
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid #a8c5ff; border-color: var(--blue);
+}
+.field { margin-bottom: 14px; }
+.field label {
+  display: block; font-size: 13px; font-weight: 650;
+  margin-bottom: 6px;
+}
+.field small { display: block; color: var(--muted); margin-top: 5px; }
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.issue-list { display: grid; gap: 13px; }
+.issue-card { padding: 17px; }
+.issue-top {
+  display: flex; justify-content: space-between;
+  align-items: flex-start; gap: 12px;
+}
+.issue-card h3 { font-size: 17px; margin: 10px 0 7px; }
+.issue-card p { font-size: 14px; margin: 8px 0; overflow-wrap: anywhere; }
+.issue-meta {
+  display: flex; flex-wrap: wrap; gap: 7px;
+  align-items: center; font-size: 12px; color: var(--muted);
+}
+.chip {
+  display: inline-block; padding: 5px 9px; border-radius: 20px;
+  background: #eff4fa; font-size: 12px; font-weight: 650;
+}
+.status-Reported { background: #dbeafe; color: #1d4ed8; }
+.status-In-Progress { background: #fef3c7; color: #92400e; }
+.status-Resolved { background: #dcfce7; color: #166534; }
+.issue-photo {
+  width: 100%; max-height: 240px; object-fit: cover;
+  border-radius: 9px; margin-top: 10px; background: #f1f5f9;
+}
+.card-actions {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  align-items: center; margin-top: 14px;
+}
+.card-actions button, .card-actions select { font-size: 12px; }
+.card-actions select { width: auto; max-width: 155px; padding: 8px; }
+.card-actions button { padding: 8px 10px; }
+.empty {
+  padding: 32px 15px; text-align: center; color: var(--muted);
+  background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 10px;
+}
+.notice {
+  display: none; padding: 12px; border-radius: 8px;
+  margin-bottom: 14px; font-size: 13px;
+}
+.notice.show { display: block; }
+.notice.error { background: #fee2e2; color: #991b1b; }
+.notice.success { background: #dcfce7; color: #166534; }
+.duplicate-box {
+  display: none; border: 1px solid #f59e0b; background: #fffbeb;
+  padding: 13px; border-radius: 9px; margin-bottom: 14px;
+}
+.duplicate-box.show { display: block; }
+.duplicate-box h3 { margin: 0 0 8px; font-size: 15px; }
+.duplicate-item {
+  border-top: 1px solid #f3d69a; padding: 10px 0;
+  font-size: 13px;
+}
+.duplicate-item button { margin-top: 7px; }
+footer {
+  text-align: center; padding: 22px; font-size: 12px;
+  color: var(--muted); border-top: 1px solid var(--border);
+}
+@media(max-width:850px) {
+  .layout { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: repeat(2,1fr); }
+}
+@media(max-width:520px) {
+  main { padding: 20px 12px 35px; }
+  header { padding: 17px 14px; }
+  .header-tag { display: none; }
+  .intro { align-items: flex-start; flex-direction: column; }
+  h1 { font-size: 25px; }
+  .field-grid { grid-template-columns: 1fr; gap: 0; }
+  .panel { padding: 15px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="brand">Campus<span>Fix</span></div>
+    <p>Report it. Track it. Fix it.</p>
+  </div>
+  <div class="header-tag">CAMPUS MAINTENANCE PORTAL</div>
+</header>
+
+<main>
+  <section class="intro">
+    <div>
+      <h1>Campus issue tracker</h1>
+      <p>Help make campus safer and better for everyone.</p>
+    </div>
+    <button class="primary" onclick="document.getElementById('reportTitle').focus(); document.getElementById('reportTitle').scrollIntoView({behavior:'smooth',block:'center'});">
+      + Report an issue
+    </button>
+  </section>
+
+  <section class="stats" aria-label="Issue statistics">
+    <div class="stat"><div class="stat-label">Total reports</div><div class="stat-number" id="totalCount">0</div></div>
+    <div class="stat"><div class="stat-label">Reported</div><div class="stat-number" id="reportedCount">0</div></div>
+    <div class="stat"><div class="stat-label">In progress</div><div class="stat-number" id="progressCount">0</div></div>
+    <div class="stat"><div class="stat-label">Resolved</div><div class="stat-number" id="resolvedCount">0</div></div>
+  </section>
+
+  <div class="layout">
+    <section class="panel">
+      <h2>Campus reports</h2>
+      <div class="toolbar">
+        <input id="searchInput" aria-label="Search reports" placeholder="Search reports..." oninput="renderReports()">
+        <select id="categoryFilter" aria-label="Filter by category" onchange="renderReports()">
+          <option value="">All categories</option>
+          <option>Electrical</option><option>Plumbing</option>
+          <option>Cleaning</option><option>Furniture</option>
+          <option>Safety</option><option>IT</option><option>Other</option>
+        </select>
+        <select id="statusFilter" aria-label="Filter by status" onchange="renderReports()">
+          <option value="">All statuses</option>
+          <option>Reported</option><option>In Progress</option><option>Resolved</option>
+        </select>
+      </div>
+      <div id="issueList" class="issue-list" aria-live="polite"></div>
+    </section>
+
+    <aside>
+      <section class="panel" id="reportPanel">
+        <h2>Report a problem</h2>
+        <p class="muted" style="font-size:13px;margin-top:-8px">Describe the issue so the right team can address it.</p>
+        <div id="notice" class="notice" role="status"></div>
+        <form id="reportForm">
+          <div class="field">
+            <label for="reportTitle">Issue title *</label>
+            <input id="reportTitle" maxlength="90" required placeholder="e.g. Broken hallway light">
+          </div>
+          <div class="field">
+            <label for="description">Description *</label>
+            <textarea id="description" maxlength="600" required placeholder="Describe the problem..."></textarea>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label for="category">Category *</label>
+              <select id="category" required>
+                <option value="">Choose one</option>
+                <option>Electrical</option><option>Plumbing</option>
+                <option>Cleaning</option><option>Furniture</option>
+                <option>Safety</option><option>IT</option><option>Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="location">Campus location *</label>
+              <input id="location" maxlength="100" required placeholder="e.g. Library, Room 204">
+            </div>
+          </div>
+          <div class="field">
+            <label for="photo">Attach a photo</label>
+            <input id="photo" type="file" accept="image/*">
+            <small>Optional. Use a sample image, not a photo of a person. Maximum 2 MB.</small>
+          </div>
+          <div id="duplicateBox" class="duplicate-box"></div>
+          <button class="primary" type="submit" style="width:100%">Check & submit report</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2>How it works</h2>
+        <p style="font-size:13px">1. Describe a campus maintenance issue.</p>
+        <p style="font-size:13px">2. Check for similar reports before submitting.</p>
+        <p style="font-size:13px">3. Track progress until the issue is resolved.</p>
+        <p class="muted" style="font-size:12px">Demo prototype using fictional sample data. Reports are saved only in this browser.</p>
+        <button class="secondary" type="button" onclick="resetDemo()">Reset demo data</button>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<footer>CampusFix · LION Code Challenge 2026 · Penn State Abington prototype</footer>
+
+<script>
+const STORAGE_KEY = "campusfix_reports_v1";
+
+const sampleReports = [
+  {
+    id: "demo-101",
+    title: "Broken light near library entrance",
+    description: "The light near the main entrance does not turn on after dark.",
+    category: "Electrical",
+    location: "Library, Main Entrance",
+    status: "Reported",
+    votes: 2,
+    photo: "",
+    createdAt: "2026-10-28T10:30:00.000Z"
+  },
+  {
+    id: "demo-102",
+    title: "Leaking sink in restroom",
+    description: "Water is dripping continuously from the sink faucet.",
+    category: "Plumbing",
+    location: "Academic Building, Room 110",
+    status: "In Progress",
+    votes: 1,
+    photo: "",
+    createdAt: "2026-10-28T12:00:00.000Z"
+  },
+  {
+    id: "demo-103",
+    title: "Loose chair in study area",
+    description: "One of the study chairs has a loose leg and wobbles.",
+    category: "Furniture",
+    location: "Library, Second Floor",
+    status: "Resolved",
+    votes: 3,
+    photo: "",
+    createdAt: "2026-10-27T14:00:00.000Z"
+  }
+];
+
+let reports = loadReports();
+let pendingReport = null;
+let pendingPhoto = "";
+let lastDuplicates = [];
+
+function loadReports() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved !== null) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch (error) {
+    console.warn("Could not load saved reports.", error);
+  }
+  return sampleReports.map(report => ({...report}));
+}
+
+function saveReports() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
+    return true;
+  } catch (error) {
+    showNotice("Your browser could not save the changes. Try a smaller photo or reset the demo data.", "error");
+    return false;
+  }
+}
+
+function showNotice(message, type) {
+  const notice = document.getElementById("notice");
+  notice.textContent = message;
+  notice.className = "notice show " + type;
+}
+
+function normalize(text) {
+  return text.toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter(word => word.length > 2);
+}
+
+function similarity(a, b) {
+  const wordsA = new Set(normalize(a));
+  const wordsB = new Set(normalize(b));
+  if (!wordsA.size || !wordsB.size) return 0;
+  let common = 0;
+  wordsA.forEach(word => { if (wordsB.has(word)) common++; });
+  return common / (wordsA.size + wordsB.size - common);
+}
+
+function findDuplicates(candidate) {
+  return reports.map(report => {
+    const titleScore = similarity(candidate.title, report.title);
+    const textScore = similarity(
+      candidate.title + " " + candidate.description,
+      report.title + " " + report.description
+    );
+    const sameLocation =
+      report.location.trim().toLowerCase() === candidate.location.trim().toLowerCase();
+    const sameCategory = report.category === candidate.category;
+    const score = Math.max(
+      textScore,
+      titleScore + (sameLocation ? 0.35 : 0) + (sameCategory ? 0.12 : 0)
+    );
+    return {report, score, sameLocation};
+  })
+  .filter(item => item.score >= 0.28 || (item.sameLocation && item.score >= 0.15))
+  .sort((a,b) => b.score - a.score)
+  .slice(0,3);
+}
+
+function statusClass(status) {
+  return "status-" + status.replace(/\s+/g, "-");
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  })[char]);
+}
+
+function renderReports() {
+  const search = document.getElementById("searchInput").value.toLowerCase().trim();
+  const category = document.getElementById("categoryFilter").value;
+  const status = document.getElementById("statusFilter").value;
+
+  document.getElementById("totalCount").textContent = reports.length;
+  document.getElementById("reportedCount").textContent =
+    reports.filter(r => r.status === "Reported").length;
+  document.getElementById("progressCount").textContent =
+    reports.filter(r => r.status === "In Progress").length;
+  document.getElementById("resolvedCount").textContent =
+    reports.filter(r => r.status === "Resolved").length;
+
+  const filtered = reports.filter(report => {
+    const text = [report.title, report.description, report.category, report.location, report.status]
+      .join(" ").toLowerCase();
+    return text.includes(search) &&
+      (!category || report.category === category) &&
+      (!status || report.status === status);
+  }).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  const list = document.getElementById("issueList");
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty">No matching reports. Try another search or submit a new report.</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(report => `
+    <article class="issue-card">
+      <div class="issue-top">
+        <div class="issue-meta">
+          <span class="chip">${escapeHTML(report.category)}</span>
+          <span class="chip ${statusClass(report.status)}">${escapeHTML(report.status)}</span>
+        </div>
+        <span class="muted" style="font-size:11px">${escapeHTML(formatDate(report.createdAt))}</span>
+      </div>
+      <h3>${escapeHTML(report.title)}</h3>
+      <p>${escapeHTML(report.description)}</p>
+      <div class="issue-meta">
+        <span>📍 ${escapeHTML(report.location)}</span>
+        <span>·</span><span>👍 ${Number(report.votes) || 0} upvotes</span>
+      </div>
+      ${report.photo ? `<img class="issue-photo" src="${report.photo}" alt="Photo attached to ${escapeHTML(report.title)}">` : ""}
+      <div class="card-actions">
+        <button class="secondary" onclick="upvote('${report.id}')">👍 Upvote</button>
+        <label for="status-${report.id}" class="muted">Status:</label>
+        <select id="status-${report.id}" aria-label="Update status for ${escapeHTML(report.title)}"
+          onchange="updateStatus('${report.id}',this.value)">
+          ${["Reported","In Progress","Resolved"].map(s =>
+            `<option ${report.status === s ? "selected" : ""}>${s}</option>`).join("")}
+        </select>
+      </div>
+    </article>
+  `).join("");
+}
+
+function formatDate(date) {
+  const parsed = new Date(date);
+  return Number.isNaN(parsed.getTime()) ? "Date unavailable" :
+    parsed.toLocaleDateString(undefined, {month:"short",day:"numeric",year:"numeric"});
+}
+
+function upvote(id) {
+  const report = reports.find(r => r.id === id);
+  if (!report) return;
+  report.votes = (Number(report.votes) || 0) + 1;
+  if (saveReports()) renderReports();
+}
+
+function updateStatus(id, status) {
+  const report = reports.find(r => r.id === id);
+  if (!report || !["Reported","In Progress","Resolved"].includes(status)) return;
+  report.status = status;
+  if (saveReports()) renderReports();
+}
+
+function getCandidate() {
+  return {
+    title: document.getElementById("reportTitle").value.trim(),
+    description: document.getElementById("description").value.trim(),
+    category: document.getElementById("category").value,
+    location: document.getElementById("location").value.trim()
+  };
+}
+
+function showDuplicates(duplicates) {
+  const box = document.getElementById("duplicateBox");
+  if (!duplicates.length) {
+    box.className = "duplicate-box";
+    box.innerHTML = "";
+    return;
+  }
+  box.className = "duplicate-box show";
+  box.innerHTML = `
+    <h3>⚠️ These reports may be similar</h3>
+    <p style="font-size:13px">Check whether one already describes this issue before creating another.</p>
+    ${duplicates.map(({report}) => `
+      <div class="duplicate-item">
+        <strong>${escapeHTML(report.title)}</strong><br>
+        ${escapeHTML(report.category)} · ${escapeHTML(report.location)}<br>
+        <span class="muted">Status: ${escapeHTML(report.status)}</span><br>
+        <button type="button" class="secondary" onclick="upvoteExisting('${report.id}')">
+          Upvote existing report
+        </button>
+      </div>
+    `).join("")}
+    <button type="button" class="primary" onclick="confirmNewReport()">No, submit a new report</button>
+  `;
+}
+
+function upvoteExisting(id) {
+  upvote(id);
+  pendingReport = null;
+  pendingPhoto = "";
+  lastDuplicates = [];
+  document.getElementById("reportForm").reset();
+  document.getElementById("duplicateBox").className = "duplicate-box";
+  showNotice("You upvoted the existing report instead of creating a duplicate.", "success");
+}
+
+async function readPhoto(file) {
+  if (!file) return "";
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Please choose an image file.");
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    throw new Error("Please choose an image smaller than 2 MB.");
+  }
+  return new Promise((resolve,reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Could not read that image."));
+    reader.readAsDataURL(file);
+  });
+}
+
+document.getElementById("reportForm").addEventListener("submit", async event => {
+  event.preventDefault();
+
+  if (pendingReport) {
+    confirmNewReport();
+    return;
+  }
+
+  const candidate = getCandidate();
+  if (!candidate.title || !candidate.description || !candidate.category || !candidate.location) {
+    showNotice("Please complete all required fields.", "error");
+    return;
+  }
+
+  try {
+    const file = document.getElementById("photo").files[0];
+    pendingPhoto = await readPhoto(file);
+  } catch (error) {
+    showNotice(error.message, "error");
+    return;
+  }
+
+  pendingReport = candidate;
+  lastDuplicates = findDuplicates(candidate);
+  showDuplicates(lastDuplicates);
+
+  if (!lastDuplicates.length) {
+    confirmNewReport();
+  } else {
+    showNotice("Review the similar reports below before continuing.", "error");
+    document.getElementById("duplicateBox").scrollIntoView({behavior:"smooth",block:"center"});
+  }
+});
+
+function confirmNewReport() {
+  if (!pendingReport) return;
+  const newReport = {
+    ...pendingReport,
+    id: "issue-" + Date.now() + "-" + Math.random().toString(36).slice(2,7),
+    status: "Reported",
+    votes: 0,
+    photo: pendingPhoto,
+    createdAt: new Date().toISOString()
+  };
+
+  reports.unshift(newReport);
+  if (!saveReports()) {
+    reports.shift();
+    return;
+  }
+
+  document.getElementById("reportForm").reset();
+  document.getElementById("duplicateBox").className = "duplicate-box";
+  pendingReport = null;
+  pendingPhoto = "";
+  lastDuplicates = [];
+  showNotice("Your report was submitted successfully.", "success");
+  renderReports();
+}
+
+function resetDemo() {
+  if (!confirm("Reset all local reports to the original sample data? This cannot be undone.")) return;
+  reports = sampleReports.map(report => ({...report}));
+  pendingReport = null;
+  pendingPhoto = "";
+  lastDuplicates = [];
+  try { localStorage.removeItem(STORAGE_KEY); } catch (error) {}
+  document.getElementById("reportForm").reset();
+  document.getElementById("duplicateBox").className = "duplicate-box";
+  showNotice("Demo data has been reset.", "success");
+  renderReports();
+}
+
+renderReports();
+</script>
+</body>
+</html>
